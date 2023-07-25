@@ -10,6 +10,7 @@ import com.fpoly.service.UserService;
 import com.fpoly.service.impl.EmailServiceImpl;
 import com.fpoly.service.impl.UserServiceImpl;
 import com.fpoly.util.GoogleUtils;
+import com.fpoly.util.RandomStringGenerator;
 import com.fpoly.util.SendEmailForgotPassword;
 
 import jakarta.servlet.ServletException;
@@ -95,8 +96,22 @@ public class UserController extends HttpServlet {
 			String accessToken = GoogleUtils.getToken(code);
 			GooglePojo googlePojo = GoogleUtils.getUserInfo(accessToken);
 
-			session.setAttribute(SessionAtrr.CURRENT_USER, googlePojo);
-			response.sendRedirect("index");
+			String email = googlePojo.getEmail();
+			String pass = RandomStringGenerator.generateRandomString(6);
+			String username = RandomStringGenerator.generateUsername();
+
+			User user = userService.findByEmail(email);
+			if (user == null) {
+				User addUserEmail = userService.create(email, pass, username);
+				if (addUserEmail != null) {
+					response.sendRedirect("index");
+					session.setAttribute(SessionAtrr.CURRENT_USER, addUserEmail);
+				}
+			} else {
+				response.sendRedirect("index");
+				session.setAttribute(SessionAtrr.CURRENT_USER, user);
+
+			}
 		}
 	}
 
@@ -118,7 +133,6 @@ public class UserController extends HttpServlet {
 		session.removeAttribute(SessionAtrr.CURRENT_USER);
 		response.sendRedirect("index");
 	}
-
 
 	// Change Pass
 	private void doGetChangePass(HttpServletRequest request, HttpServletResponse response)
@@ -238,7 +252,7 @@ public class UserController extends HttpServlet {
 		User auth = (User) session.getAttribute(SessionAtrr.CURRENT_USER);
 
 		if (auth.getPassword() != null) {
-			System.out.println(oldPass +" / "+ auth.getPassword());
+			System.out.println(oldPass + " / " + auth.getPassword());
 			if (auth.getPassword().equalsIgnoreCase(oldPass) && oldPass != null && !oldPass.isEmpty()) {
 				if (confirmPass.equalsIgnoreCase(confirmPass)) {
 					User user = userService.changePassword(auth.getUsername(), newPass);
@@ -257,7 +271,7 @@ public class UserController extends HttpServlet {
 					System.out.println("mật khẩu mới với xác nhận mật khẩu không trùng nhau!");
 				}
 			} else {
-				System.out.println("Mật khẩu của tài khoản "+auth.getUsername() + "Không đúng.");
+				System.out.println("Mật khẩu của tài khoản " + auth.getUsername() + "Không đúng.");
 				session.setAttribute("changePass", false);
 				response.sendRedirect("change-pass");
 			}

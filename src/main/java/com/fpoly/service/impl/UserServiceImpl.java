@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public User changePassword(String username, String newPass) {
 		User existUser = findByUsername(username);
@@ -82,6 +82,17 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public User create(String email, String password, String username) {
+		User UserMail = new User();
+		UserMail.setEmail(email);
+		UserMail.setPassword(password);
+		UserMail.setUsername(username);
+		UserMail.setIsAdmin(Boolean.FALSE);
+		UserMail.setIsActive(Boolean.TRUE);
+		return dao.create(UserMail);
+	}
+
+	@Override
 	public User update(User entity) {
 		return dao.update(entity);
 	}
@@ -98,7 +109,7 @@ public class UserServiceImpl implements UserService {
 		Map<String, Object> params = new HashMap<>();
 		params.put(namedStored.Videohref, href);
 		List<User> users = dao.findUsersLikedVideoByVideoHref(params);
-		List<UserDto> result =  new ArrayList<>();
+		List<UserDto> result = new ArrayList<>();
 		users.forEach(user -> {
 			UserDto dto = new UserDto();
 			dto.setUsername(user.getUsername());

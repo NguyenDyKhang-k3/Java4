@@ -41,9 +41,6 @@
 							<c:when test="${empty sessionScope.currentUser}">
                					 My Account
             				</c:when>
-            				<c:when test="${not empty sessionScope.currentUser}">
-               					 Xin chào ! khang
-            				</c:when>
 							<c:otherwise>
                 				Xin chào ! <c:out value="${sessionScope.currentUser.username}" />
 							</c:otherwise>

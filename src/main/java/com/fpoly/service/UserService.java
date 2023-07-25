@@ -25,6 +25,8 @@ public interface UserService {
 
 	User register(String username, String password, String email);
 
+	User create(String email, String password, String username);
+
 	User update(User entity);
 
 	User delete(String username);
